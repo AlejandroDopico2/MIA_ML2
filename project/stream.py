@@ -4,7 +4,7 @@ from datetime import datetime
 from river.compose import Pipeline, Discard, FuncTransformer, TargetTransformRegressor
 from river.preprocessing import StandardScaler
 import plotly.graph_objects as go
-
+import plotly.express as px
 
 
 def train(data, models: Dict[str, Pipeline]) -> Dict[str, np.ndarray]:
@@ -16,11 +16,13 @@ def train(data, models: Dict[str, Pipeline]) -> Dict[str, np.ndarray]:
     return {name: np.array(pred) for name, pred in preds.items()}
 
 def plot_preds(preds: Dict[str, np.ndarray], target: np.ndarray, metrics: Dict[str, float]):
-    fig = go.Figure() 
-    fig.add_trace(go.Scatter(y=target, name='Temperature'))
-    for name in preds.keys():
-        fig.add_trace(go.Scatter(y=preds[name], name=f'{name} ({metrics[name]:.2})'))
-    fig.update_layout(width=1000, height=600, title_text='Temperature', template='seaborn')
+    fig = go.Figure()
+    colors = px.colors.qualitative.D3
+    fig.add_trace(go.Scatter(y=target, name='Temperature', line=dict(color='black')))
+    for i, name in enumerate(preds.keys()):
+        fig.add_trace(go.Scatter(y=preds[name], name=f'{name} ({metrics[name]:.2})', line=dict(color=colors[i])))
+    fig.update_layout(width=1000, height=600, title_text='Temperature', template='seaborn', 
+                      margin=dict(t=60, b=20, l=20, r=20))
     return fig
 
 
