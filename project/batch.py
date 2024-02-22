@@ -37,7 +37,7 @@ class SequentialImpute(BaseEstimator, TransformerMixin):
 def create_pipeline(model, impute: bool = False) -> sk_Pipeline:
     steps = []
     if impute:
-        steps.append(SequentialImputer())
+        steps.append(SequentialImpute())
     steps = [('selector', SelectKBest(k = 10)), ('scaler', sk_StandardScaler()), ('model', model)]    
     pipeline = sk_Pipeline(steps)
     return pipeline
