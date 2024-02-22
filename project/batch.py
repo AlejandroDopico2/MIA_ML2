@@ -1,6 +1,6 @@
 from sklearn.pipeline import Pipeline as sk_Pipeline
 from sklearn.preprocessing import StandardScaler as sk_StandardScaler
-from sklearn.feature_selection import SelectKBest
+from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.base import TransformerMixin, BaseEstimator
 from typing import Callable 
 import numpy as np 
@@ -38,7 +38,8 @@ def create_pipeline(model, impute: bool = False) -> sk_Pipeline:
     steps = []
     if impute:
         steps.append(SequentialImpute())
-    steps = [('selector', SelectKBest(k = 10)), ('scaler', sk_StandardScaler()), ('model', model)]    
+    steps = [('selector', SelectKBest(k = 10, score_func=f_regression)),
+            ('scaler', sk_StandardScaler()), ('model', model)]    
     pipeline = sk_Pipeline(steps)
     return pipeline
 
