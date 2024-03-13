@@ -2,24 +2,26 @@ import flwr as fl
 import tensorflow as tf
 import numpy as np
 
-NUM_CLIENTS = 2
+NUM_CLIENTS = 5
 
 # Define a simple model using TensorFlow
 def generate_ann():
-    model = tf.keras.Sequential(
-        [
-            tf.keras.layers.Flatten(input_shape=(32, 32, 3)), #input data. 32x32 color images with 3 channels
-            tf.keras.layers.Dense(64, activation="relu"), #hidden layer
-            tf.keras.layers.Dense(64, activation="relu"),#hidden layer
-            tf.keras.layers.Dense(10, activation="softmax"), #output layer. 10 classes
-        ]
-    )
+    model = tf.keras.Sequential([
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+        tf.keras.layers.Conv2D(32, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+        tf.keras.layers.MaxPooling2D((2, 2)),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(64, activation='relu'),
+        tf.keras.layers.Dense(10, activation='softmax')
+    ])
 
-    model.compile(
-        loss=tf.keras.losses.sparse_categorical_crossentropy,
-        optimizer=tf.keras.optimizers.Adam(),
-        metrics=["accuracy"],
-    )
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy',
+                  metrics=['accuracy'])
+    
     return model
 
 def unison_shuffled_copies(a, b):
@@ -82,7 +84,7 @@ class MyClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         self.model.set_weights(parameters)
-        self.model.fit(self.trainloader[0],self.trainloader[1], epochs=1, batch_size=32, steps_per_epoch=3)
+        self.model.fit(self.trainloader[0],self.trainloader[1], epochs=10, batch_size=64)
         return self.model.get_weights(), len(self.trainloader[0]), {}
 
     def evaluate(self, parameters, config):
