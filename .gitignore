@@ -2,3 +2,4 @@
 *Solved.ipynb
 __old__/
 *.DS_Store
+.venv/*
